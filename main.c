@@ -1,17 +1,17 @@
-#include <stdio.h>		// Header de Entrada e Saída, como printf
-#include <sys/types.h>	// Definições de tipos de dados, como pid_t
-#include <unistd.h>		// Define funções como pipe() e fork()
-#include <sys/wait.h>	// Define funções de espera como wait()
-#include <stdlib.h>		// Define funções gerais como exit()
+#include <stdio.h>		// Header de Entrada e SaÃ­da, como printf
+#include <sys/types.h>	// DefiniÃ§Ãµes de tipos de dados, como pid_t
+#include <unistd.h>		// Define funÃ§Ãµes como pipe() e fork()
+#include <sys/wait.h>	// Define funÃ§Ãµes de espera como wait()
+#include <stdlib.h>		// Define funÃ§Ãµes gerais como exit()
 
 // Calcula multiplicacoes sucessivas
-// limit = Ultima Multiplicação
-// inicio  = Primeira Multiplicação
+// limit = Ultima MultiplicaÃ§Ã£o
+// inicio  = Primeira MultiplicaÃ§Ã£o
 long long int multSucessiva(int limit, int inicio){ // Retorna -1 em caso de ERRO
 	long long int result = 1; // Resultado
 	int mult;
-	for (mult = inicio; mult<=limit; mult++) { // Calcula multiplicação do Fatorial de forma iterativa
-        result = result * mult; // Calcula a proxima iteração do fatorial
+	for (mult = inicio; mult<=limit; mult++) { // Calcula multiplicaÃ§Ã£o do Fatorial de forma iterativa
+        result = result * mult; // Calcula a proxima iteraÃ§Ã£o do fatorial
 	}
 	return result; // Retorna Fatorial Calculado
 }
@@ -57,7 +57,7 @@ long long int fatorialMultiprocess(int limit){
 		
 		wait(NULL);
 		
-		// Lê o valor de result_buffer do pipe, escrito pelo processo Child
+		// LÃª o valor de result_buffer do pipe, escrito pelo processo Child
 		read(process_io[0], &result_buffer, sizeof(result_buffer)); 
 		
 		result = result*result_buffer;
@@ -66,7 +66,6 @@ long long int fatorialMultiprocess(int limit){
 	return result; // Retorna Fatorial Calculado
 }
 
-int value = 5;
 int main(){
 	int num;
 	
