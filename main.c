@@ -7,7 +7,7 @@
 // Calcula multiplicacoes sucessivas
 // limit = Ultima Multiplicação
 // inicio  = Primeira Multiplicação
-long long int multSucessiva(int limit, int inicio){ 
+long long int multSucessiva(int limit, int inicio){ // Retorna -1 em caso de ERRO
 	long long int result = 1; // Resultado
 	int mult;
 	for (mult = inicio; mult<=limit; mult++) { // Calcula multiplicação do Fatorial de forma iterativa
@@ -18,10 +18,49 @@ long long int multSucessiva(int limit, int inicio){
 
 // Limit = Numero do Fatorial
 long long int fatorialMultiprocess(int limit){
-	long long int result; // Resultado
+	/*    SET VARIAVEIS DE PARA O FORK    */
+	pid_t pid; // Process ID
+	int process_io[2], pipe_status;
 	
-	if (limit > 1){
-		result = multSucessiva( limit/2, 1 ) * multSucessiva( limit, (limit/2)+1);
+	pipe_status = pipe(process_io);
+	if (pipe_status == -1){ // Checa se algum erro ocorreu com o pipe()
+		perror("Erro ao definir Pipe");
+		return -1; // ERRO
+	}
+	
+	/*    CHAMA AS FUNCOES QUE CALCULAM FATORIAL    */
+	long long int result; // Resultado
+	long long int result_buffer; // Recebe o resultado de outro processo
+	
+	if ( limit == 0 || limit == 1 )
+		return 1;
+	
+	else if (limit > 1){
+		pid = fork(); // Bifurca o processo
+		
+		if (pid == -1) { // Checa se algum erro ocorreu com o fork()
+			perror("Erro ao dividir processo");
+			return -1; // ERRO
+		}
+		
+		if (pid == 0) { // Processo Filho
+			result_buffer = multSucessiva( limit/2, 1 );
+			
+			// Escreve o valor de result_buffer no pipe, para que o Parent possa ler
+			write(process_io[1], &result_buffer, sizeof(result_buffer));  
+			
+			exit(0); // Sai do processo
+		}
+		
+		// else if (pid > 0) Processo Pai
+		result = multSucessiva( limit, (limit/2)+1);
+		
+		wait(NULL);
+		
+		// Lê o valor de result_buffer do pipe, escrito pelo processo Child
+		read(process_io[0], &result_buffer, sizeof(result_buffer)); 
+		
+		result = result*result_buffer;
 	}
 	
 	return result; // Retorna Fatorial Calculado
@@ -36,46 +75,5 @@ int main(){
 	
 	scanf("%d", &num);
 	
-	printf(" Resultado %lld", fatorialMultiprocess(num));
-}
-
-int main_(){
-	// pip[0] = Read     pip[1] = Write
-	// Se pipe_status for -1, ocorreu um erro
-	int pip[2], pipe_status;
-	pid_t pid;
-
-	pipe_status = pipe(pip);
-	if (pipe_status == -1){ // Checa se algum erro ocorreu com o pipe()
-		perror("Erro ao definir Pipe");
-		exit(1);
-	}
-	
-	pid = fork(); // Bifurca o processo
-	
-	if (pid == -1) { // Checa se algum erro ocorreu com o fork()
-		perror("Erro ao dividir processo");
-		exit(1);
-	}
-	else if (pid == 0) { // Processo Filho
-		printf("Entrei no filho!\n\n");
-		
-		value += 15;
-		
-		printf ("CHILD\tvalue = %d\n",value);
-		
-		// Escreve o valor de value no pipe, para que o Parent possa ler
-		write(pip[1], &value, 1);  
-		
-		return 0;
-	}
-	else if (pid > 0) { // Processo Pai
-		wait(NULL);
-		
-		// Lê o valor de value do pipe, escrito pelo processo Child
-		read(pip[0], &value, sizeof(int)); 
-		
-		printf("PARENT\tvalue = %d\n",value);
-		return 0;
-	}
+	printf(" Resultado %lld\n", fatorialMultiprocess(num));
 }
