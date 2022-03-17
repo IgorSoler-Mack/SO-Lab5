@@ -4,21 +4,39 @@
 #include <sys/wait.h>	// Define funções de espera como wait()
 #include <stdlib.h>		// Define funções gerais como exit()
 
-int value = 5;
-
-long long int fatorial(int limit){
+// Calcula multiplicacoes sucessivas
+// limit = Ultima Multiplicação
+// inicio  = Primeira Multiplicação
+long long int multSucessiva(int limit, int inicio){ 
 	long long int result = 1; // Resultado
 	int mult;
-	
-	for (mult = 1; mult<=limit; mult++) { // Calcula multiplicação do Fatorial de forma iterativa
+	for (mult = inicio; mult<=limit; mult++) { // Calcula multiplicação do Fatorial de forma iterativa
         result = result * mult; // Calcula a proxima iteração do fatorial
+	}
+	return result; // Retorna Fatorial Calculado
+}
+
+// Limit = Numero do Fatorial
+long long int fatorialMultiprocess(int limit){
+	long long int result; // Resultado
+	
+	if (limit > 1){
+		result = multSucessiva( limit/2, 1 ) * multSucessiva( limit, (limit/2)+1);
 	}
 	
 	return result; // Retorna Fatorial Calculado
 }
 
+int value = 5;
 int main(){
-	printf("Resultado %lld", fatorial(9));
+	int num;
+	
+	printf(" Calcular o fatorial de (int)\n");
+	printf(" ->");
+	
+	scanf("%d", &num);
+	
+	printf(" Resultado %lld", fatorialMultiprocess(num));
 }
 
 int main_(){
